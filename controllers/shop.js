@@ -40,3 +40,11 @@ exports.getOrders = (req, res, next) => {
     pageTitle: 'Orders'
   });
 };
+
+exports.getDetails = (req, res, next) => {
+  const prodID = req.params.productID;
+  Product.fetchByID(prodID, product => {
+    console.log(product);
+    res.redirect('/');
+  });
+};
