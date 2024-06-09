@@ -46,11 +46,20 @@ module.exports = class Product {
   static fetchAll(cb) {
     getProductsFromFile(cb);
   }
-
+  
   static fetchByID(id, cb) {
     getProductsFromFile(products => {
       const prod = products.find(p => p.id === id);
       cb(prod);
+    });
+  }
+
+  static deleteByID(id) {
+    Product.fetchAll(products => {
+    const updatedProducts = products.filter(product => product.id!==id);
+      fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+        if(err) console.log(`Error deleting item = ${err}`);
+      });
     });
   }
 };
