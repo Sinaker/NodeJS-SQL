@@ -18,17 +18,25 @@ const getProductsFromFile = cb => {
 };
 
 module.exports = class Product {
-  constructor(title, imageUrl, description, price) {
-    this.id = Math.random();
+  constructor(id, title, imageUrl, description, price) {
+    this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
     this.price = price;
   }
-
+  
   save() {
     getProductsFromFile(products => {
-      products.push(this);
+      if(this.id) //If ID already exists
+      {
+        const existingProductIndex = products.findIndex(prod => this.id===prod.id)
+        products[existingProductIndex] = this;
+      }
+      else {
+        this.id = Math.random().toString();
+        products.push(this);
+      }
       fs.writeFile(p, JSON.stringify(products), err => {
         console.log(err);
       });
@@ -40,9 +48,9 @@ module.exports = class Product {
   }
 
   static fetchByID(id, cb) {
-    getProductsFromFile((products) => {
+    getProductsFromFile(products => {
       const prod = products.find(p => p.id === id);
       cb(prod);
-    })
+    });
   }
 };

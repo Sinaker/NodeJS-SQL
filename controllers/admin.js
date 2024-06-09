@@ -2,11 +2,10 @@ const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/add-product', {
+    product: null,
     pageTitle: 'Add Product',
     path: '/admin/add-product',
-    formsCSS: true,
-    productCSS: true,
-    activeAddProduct: true
+    editing: false
   });
 };
 
@@ -15,9 +14,32 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   const imageUrl = req.body.imageUrl;
-  const product = new Product(title, imageUrl, description, price);
+  const product = new Product(null, title, imageUrl, description, price);
   product.save();
   res.redirect('/');
+};
+
+exports.getEditProduct = (req, res, next) => {
+  const prodID = req.params.productID;
+  Product.fetchByID(prodID, (product) => {
+    res.render('admin/add-product', {
+      product: product,
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: true
+    });
+  });
+};
+
+exports.postEditProduct = (req, res, next) => {
+  const id = req.body.productID; //From hidden input
+  const title = req.body.title;
+  const price = req.body.price;
+  const description = req.body.description;
+  const imageUrl = req.body.imageUrl;
+  const product = new Product(id, title, imageUrl, description, price);
+  product.save();
+  res.redirect('/products');
 };
 
 exports.getProducts = (req, res, next) => {
