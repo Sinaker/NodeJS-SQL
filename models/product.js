@@ -1,65 +1,37 @@
-const fs = require('fs');
-const path = require('path');
+const {Sequelize, DataTypes} = require('sequelize');
+const sequelize = require('../util/database');
 
-const p = path.join(
-  path.dirname(require.main.filename),
-  'data',
-  'products.json'
+const Product = sequelize.define('Products', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  price: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+    defaultValue: 0
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  imageUrl: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+
+},
+
+{
+  freezeTableName: true //By default sequelize auto-pluralises table you can add this to prevent that
+  // tableName: 'sequelize-products' //Or provide table name directly
+}
 );
 
-const getProductsFromFile = cb => {
-  fs.readFile(p, (err, fileContent) => {
-    if (err) {
-      cb([]);
-    } else {
-      cb(JSON.parse(fileContent));
-    }
-  });
-};
-
-module.exports = class Product {
-  constructor(id, title, imageUrl, description, price) {
-    this.id = id;
-    this.title = title;
-    this.imageUrl = imageUrl;
-    this.description = description;
-    this.price = price;
-  }
-  
-  save() {
-    getProductsFromFile(products => {
-      if(this.id) //If ID already exists
-      {
-        const existingProductIndex = products.findIndex(prod => this.id===prod.id)
-        products[existingProductIndex] = this;
-      }
-      else {
-        this.id = Math.random().toString();
-        products.push(this);
-      }
-      fs.writeFile(p, JSON.stringify(products), err => {
-        console.log(err);
-      });
-    });
-  }
-
-  static fetchAll(cb) {
-    getProductsFromFile(cb);
-  }
-  
-  static fetchByID(id, cb) {
-    getProductsFromFile(products => {
-      const prod = products.find(p => p.id === id);
-      cb(prod);
-    });
-  }
-
-  static deleteByID(id) {
-    Product.fetchAll(products => {
-    const updatedProducts = products.filter(product => product.id!==id);
-      fs.writeFile(p, JSON.stringify(updatedProducts), err => {
-        if(err) console.log(`Error deleting item = ${err}`);
-      });
-    });
-  }
-};
+module.exports = Product;
